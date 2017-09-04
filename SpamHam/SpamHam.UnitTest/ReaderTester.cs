@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace SpamHam.UnitTest
 {
     [TestFixture]
-    public class ReaderTester
+    public class ReaderTester:TestBase
     {
         [Test]
         public void TestParseLine()
@@ -23,12 +23,10 @@ namespace SpamHam.UnitTest
         [Test]
         public void TestRead()
         {
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "english.txt");
-            TesterReader r = new TesterReader(path);
-            Dictionary<string, DocType> k = r.Read();
+            Dictionary<string, DocType> k = GetTraningData();
             
             List<string> lines=new List<string>();
-            string[] context = File.ReadAllLines(path);
+            string[] context = File.ReadAllLines(TraningFilePath);
             foreach (string line in context)
             {
                 if(string.IsNullOrEmpty(line))
