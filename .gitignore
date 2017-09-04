@@ -1,0 +1,11 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/SpamHam/packages
+/.vs
+/SpamHam/.vs/SpamHam/v15
+/SpamHam/SpamHam/bin/Debug
+/SpamHam/SpamHam/obj/Debug
+/SpamHam/SpamHam.UnitTest/bin/Debug
+/SpamHam/SpamHam.UnitTest/obj/Debug
