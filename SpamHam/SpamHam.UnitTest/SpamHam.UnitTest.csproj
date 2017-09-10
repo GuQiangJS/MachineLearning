@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContainsFREETest.cs" />
-    <Compile Include="MathExtension.cs" />
     <Compile Include="ParticipleSimpleTest.cs" />
     <Compile Include="ReaderTester.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

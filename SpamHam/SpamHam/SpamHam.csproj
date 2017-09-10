@@ -44,6 +44,8 @@
     <Compile Include="ICalculation.cs" />
     <Compile Include="IParticiple.cs" />
     <Compile Include="IReader.cs" />
+    <Compile Include="Line.cs" />
+    <Compile Include="MathExtension.cs" />
     <Compile Include="ParticipleSimple.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DocType.cs" />

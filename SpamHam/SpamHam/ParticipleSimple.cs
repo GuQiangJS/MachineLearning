@@ -26,9 +26,8 @@ namespace SpamHam
         /// 分词
         /// </summary>
         /// <param name="value">待进行分词操作的字符串</param>
-        /// <param name="toUp">将分词全部转换为大写</param>
         /// <returns>返回分词后的文本数组。</returns>
-        public string[] DoParticiple(string value,bool toUp=true)
+        public string[] DoParticiple(string value)
         {
             Queue<string> result=new Queue<string>();
             char[] chars = value.ToArray();
@@ -38,12 +37,7 @@ namespace SpamHam
             {
                 if ((c <= 57 && c >= 48) || (c >= 65 && c <= 90) || (c >= 97 && c <= 122))
                 {
-                    char temp = c;
-                    if (temp >= 97 && temp <= 122)
-                    {
-                        temp = (char) (temp - 32);
-                    }
-                    cs.Enqueue(temp);
+                    cs.Enqueue(c);
                     continue;
                 }
                 if (c == 32)

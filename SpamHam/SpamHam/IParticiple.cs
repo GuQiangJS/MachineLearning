@@ -15,8 +15,7 @@ namespace SpamHam
         /// 分词
         /// </summary>
         /// <param name="value">待进行分词操作的字符串</param>
-        /// <param name="toUp">将分词全部转换为大写</param>
         /// <returns>返回分词后的文本数组。</returns>
-        string[] DoParticiple(string value, bool toUp = true);
+        string[] DoParticiple(string value);
     }
 }

@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpamHam", "SpamHam\SpamHam.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpamHam.UnitTest", "SpamHam.UnitTest\SpamHam.UnitTest.csproj", "{0712C880-F2B9-4542-994B-415C5A6F6995}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{078F039B-3387-4B8E-A873-DDC5CC08BE53}"
+	ProjectSection(SolutionItems) = preProject
+		Data\english.txt = Data\english.txt
+		Data\SMSSpamCollection.txt = Data\SMSSpamCollection.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
