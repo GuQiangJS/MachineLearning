@@ -17,6 +17,9 @@ namespace SpamHam.UnitTest
             string s =
                 "Urgent! call 09061749602 from Landline. Your complimentary 4* Tenerife Holiday or ?0,000 cash await collection SAE T&Cs BOX 528 HP20 1YF 150ppm 18+";
             string[] cs = participle.DoParticiple(s);
+
+            string s1 = "42 is the Answer to the question\";";
+            string[] cs1 = participle.DoParticiple(s1);
         }
     }
 }

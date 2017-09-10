@@ -37,5 +37,14 @@ namespace SpamHam
         /// 返回单词<paramref name="value"/>在字符串数组<paramref name="lines"/>中的出现次数
         /// </returns>
         int Calculate2(string[] lines, string value);
+
+        /// <summary>
+        /// 计算分组数组<paramref name="lines"/>中是<paramref name="type"/>类型，同时包含<paramref name="value"/>的概率（经过拉普拉斯容差转换）
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <param name="value"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        double Calculate3(Line[] lines, string value, DocType type);
     }
 }

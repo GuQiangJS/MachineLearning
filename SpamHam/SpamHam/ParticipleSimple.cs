@@ -55,7 +55,7 @@ namespace SpamHam
                 result.Enqueue(new string(cs.ToArray()));
             }
 
-            return result.ToArray();
+            return result.ToArray().Distinct().ToArray();
         }
     }
 }

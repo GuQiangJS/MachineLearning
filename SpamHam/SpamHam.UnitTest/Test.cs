@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 
 namespace SpamHam.UnitTest
 {
@@ -13,42 +14,64 @@ namespace SpamHam.UnitTest
         [Test]
         public void DoTest()
         {
-            //P（垃圾短信包含”xyz”)=(1+包含”xyz“的垃圾短信计数)/(1+垃圾短信计数)
-
-            //读取训练文档
-            IReader reader = new FileReader1(this.TraningFilePath);
-            //解析训练文档
-            IList<Line> lines = reader.Read();
-            //垃圾信息集合
-            List<string> spams = lines.Where(x => x.DocType == DocType.Spam).Select(y => y.Value).ToList();
-            //非垃圾信息集合
-            List<string> hams = lines.Where(x => x.DocType == DocType.Ham).Select(y => y.Value).ToList();
-
-            //对垃圾信息进行分词
-            List<string> spamWords = new List<string>();
-            //垃圾信息分词后的出现频率
-            Dictionary<string,int> spamWordsDic=new Dictionary<string, int>();
-
-            //遍历所有的垃圾信息，对齐进行分词，并计算每一个单词总共出现的次数
-            IParticiple participle = new ParticipleSimple();
-
-            //计算器
-            ICalculation calculation=new Calculation();
-            
             /*
-             * 包含Free的垃圾短信比率
-             * P（垃圾短信包含”Free”)=(1+包含”Free“的垃圾短信计数)/(1+垃圾短信计数)
-             */
+            Score(SMS是垃圾短信 | SMS包含 free、car 和 txt) = log(P(SMS 是垃圾短信))
+            + log(Laplace(SMS包含“free”| SMS是垃圾短信))
+            + log(Laplace(SMS包含“car”| SMS是垃圾短信))
+            + log(Laplace(SMS包含“txt”| SMS是垃圾短信))
+            */
 
-            ////包含Free的信息条数
-            //int containsFreeCount = calculation.Calculate2(lines.ToArray(), "FREE");
-            ////不包含Free的信息条数
-            //int notContainsFreeCount = lines.Count - containsFreeCount;
-            ////包含Free的信息数占比
-            //float containsFreePrecent = (float) containsFreeCount / lines.Count;
-            ////不包含Free的信息数占比
-            //float notContainsFreePrecent = (float)notContainsFreeCount / lines.Count;
-            
+            IList<Line> trainingData = GetTraningData();
+
+            ICalculation calculation = new Calculation();
+
+            TestContext.WriteLine("总训练数据条数：{0}.", trainingData.Count);
+
+            //SMS是垃圾短信
+            Line[] spamArray = trainingData.Where(x => x.DocType == DocType.Spam).ToArray();
+            //SMS不是垃圾短信
+            Line[] hamArray = trainingData.Where(x => x.DocType == DocType.Ham).ToArray();
+            double spamPer = (double) spamArray.Length / trainingData.Count;
+            TestContext.WriteLine("log(P(SMS 是垃圾短信))：{0}.", Math.Log(spamPer).ToString("F"));
+            double hamPer = (double)hamArray.Length / trainingData.Count;
+            TestContext.WriteLine("log(P(SMS 不是垃圾短信))：{0}.", Math.Log(hamPer).ToString("F"));
+
+            //Laplace(SMS包含“free”| SMS是垃圾短信)
+            double laplaceContainsFreeSpam = calculation.Calculate3(trainingData.ToArray(), "free", DocType.Spam);
+            TestContext.WriteLine("log(Laplace(SMS包含“free”| SMS是垃圾短信))：{0}.", Math.Log(laplaceContainsFreeSpam).ToString("F"));
+            //Laplace(SMS包含“free”| SMS不是垃圾短信)
+            double laplaceContainsfreeHam = calculation.Calculate3(trainingData.ToArray(), "free", DocType.Ham);
+            TestContext.WriteLine("log(Laplace(SMS包含“free”| SMS不是垃圾短信))：{0}.", Math.Log(laplaceContainsfreeHam).ToString("F"));
+
+            //Laplace(SMS包含“car”| SMS是垃圾短信)
+            double laplaceContainsCarSpam = calculation.Calculate3(trainingData.ToArray(), "car", DocType.Spam);
+            TestContext.WriteLine("log(Laplace(SMS包含“car”| SMS是垃圾短信))：{0}.", Math.Log(laplaceContainsCarSpam).ToString("F"));
+            //Laplace(SMS包含“car”| SMS不是垃圾短信)
+            double laplaceContainsCarHam = calculation.Calculate3(trainingData.ToArray(), "car", DocType.Ham);
+            TestContext.WriteLine("log(Laplace(SMS包含“car”| SMS不是垃圾短信))：{0}.", Math.Log(laplaceContainsCarHam).ToString("F"));
+
+            //Laplace(SMS包含“txt”| SMS是垃圾短信)
+            double laplaceContainsTxtSpam = calculation.Calculate3(trainingData.ToArray(), "txt", DocType.Spam);
+            TestContext.WriteLine("log(Laplace(SMS包含“txt”| SMS是垃圾短信))：{0}.", Math.Log(laplaceContainsTxtSpam).ToString("F"));
+            //Laplace(SMS包含“txt”| SMS不是垃圾短信)
+            double laplaceContainsTxtHam = calculation.Calculate3(trainingData.ToArray(), "txt", DocType.Ham);
+            TestContext.WriteLine("log(Laplace(SMS包含“txt”| SMS不是垃圾短信))：{0}.", Math.Log(laplaceContainsTxtHam).ToString("F"));
+
+
+            double scoreSpam = Math.Log(spamPer) + Math.Log(laplaceContainsFreeSpam) + Math.Log(laplaceContainsCarSpam) +
+                           Math.Log(laplaceContainsTxtSpam);
+            double scoreHam = Math.Log(hamPer) + Math.Log(laplaceContainsfreeHam) + Math.Log(laplaceContainsCarHam) +
+                               Math.Log(laplaceContainsTxtHam);
+
+            TestContext.WriteLine("-------------------------");
+
+            TestContext.WriteLine("Spam Score:{0}", scoreSpam.ToString("F"));
+            TestContext.WriteLine("Ham Score:{0}", scoreHam.ToString("F"));
+
+            //            TestContext.WriteLine(@"Score(SMS是垃圾短信 | SMS包含 free、car 和 txt) = log(P(SMS 是垃圾短信))
+            //log(Laplace(SMS包含“free”| SMS是垃圾短信))
+            //log(Laplace(SMS包含“car”| SMS是垃圾短信))
+            //log(Laplace(SMS包含“txt”| SMS是垃圾短信))={0}", score.ToString("F"));
         }
     }
 }
