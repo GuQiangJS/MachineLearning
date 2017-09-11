@@ -1,0 +1,21 @@
+﻿<?xml version="1.0"?>
+<FunctionPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>Finance.Stocks.TransferRecord</Name>
+  <Domain>Finance.Stocks.TransferRecord</Domain>
+  <Description>TransferRecord功能包</Description>
+  <BasePackageNames>
+    <Name>Finance.Common</Name>
+  </BasePackageNames>
+  <Items>
+    <FunctionPoint>
+      <Name>转帐记录读取服务</Name>
+      <Description></Description>
+      <AssemblyQualifiedName>Finance.Stocks.TransferRecord.TransferReadService,Finance.Stocks.TransferRecord</AssemblyQualifiedName>
+    </FunctionPoint>
+    <FunctionPoint>
+      <Name>转帐记录保存服务</Name>
+      <Description></Description>
+      <AssemblyQualifiedName>Finance.Stocks.TransferRecord.TransferSaveService,Finance.Stocks.TransferRecord</AssemblyQualifiedName>
+    </FunctionPoint>
+  </Items>
+</FunctionPackage>

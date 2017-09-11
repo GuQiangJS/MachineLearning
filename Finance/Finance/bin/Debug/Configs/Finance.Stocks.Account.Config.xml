@@ -1,0 +1,6 @@
+﻿<?xml version="1.0"?>
+<Config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <AccountPath>C:\Users\IEUser\Documents\guqiangjs.visualstudio.com\Finance\Finance 1.2\Output\Finance.Console.Debug.Test\Accounts\</AccountPath>
+  <AccountFileNameRegex>Account.(.*).xml</AccountFileNameRegex>
+  <AccountFileNameRule>Account.{0}.xml</AccountFileNameRule>
+</Config>

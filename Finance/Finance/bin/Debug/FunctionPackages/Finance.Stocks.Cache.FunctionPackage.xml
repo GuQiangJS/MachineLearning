@@ -1,0 +1,11 @@
+﻿<?xml version="1.0"?>
+<FunctionPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>Finance.Stocks.Cache</Name>
+  <Domain>Finance.Stocks.Cache</Domain>
+  <Description>数据缓存功能包</Description>
+  <BasePackageNames>
+    <Name>Finance.Common</Name>
+  </BasePackageNames>
+  <Items>
+  </Items>
+</FunctionPackage>

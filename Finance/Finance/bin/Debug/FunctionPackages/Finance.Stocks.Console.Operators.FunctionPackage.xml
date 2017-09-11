@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<FunctionPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>Finance.Stocks.Console</Name>
+  <Domain>Finance.Stocks.Console</Domain>
+  <Description>控制台操作功能配置功能包</Description>
+  <BasePackageNames>
+    <Name>Finance.Common</Name>
+  </BasePackageNames>
+  <Items>
+    <FunctionPoint>
+      <Name>ConsoleOperatorContainer</Name>
+      <Description>控制台操作容器</Description>
+      <AssemblyQualifiedName>Finance.Stocks.Console.Unit.ConsoleOperatorContainer,Finance.Stocks.Console.Unit</AssemblyQualifiedName>
+    </FunctionPoint>
+    <FunctionPoint>
+      <Name>ConsoleCommandContainer</Name>
+      <Description>控制台命令容器</Description>
+      <AssemblyQualifiedName>Finance.Stocks.Console.Unit.ConsoleCommandContainer,Finance.Stocks.Console.Unit</AssemblyQualifiedName>
+    </FunctionPoint>
+  </Items>
+</FunctionPackage>

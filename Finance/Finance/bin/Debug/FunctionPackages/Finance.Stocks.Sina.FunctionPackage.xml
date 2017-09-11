@@ -1,0 +1,43 @@
+﻿<?xml version="1.0"?>
+<FunctionPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>Finance.Stocks.Sina</Name>
+  <Domain>Finance.Stocks.Sina</Domain>
+  <Description>Sina功能包</Description>
+  <BasePackageNames>
+    <Name>Finance.Common</Name>
+  </BasePackageNames>
+  <Items>
+    <FunctionPoint>
+      <Name>由Finance.Stocks.Sina获取指定股票的StockInfo。</Name>
+      <Description></Description>
+      <AssemblyQualifiedName>Finance.Stocks.Sina.StockInfoReadService,Finance.Stocks.Sina</AssemblyQualifiedName>
+    </FunctionPoint>
+    <FunctionPoint>
+      <Name>由Finance.Stocks.Sina获取指定股票指定日期的交易明细。</Name>
+      <Description></Description>
+      <AssemblyQualifiedName>Finance.Stocks.Sina.GetDailyTransDetailService,Finance.Stocks.Sina</AssemblyQualifiedName>
+    </FunctionPoint>
+    <FunctionPoint>
+      <Name>抓取前检查本地是否有同日的数据，如果有数据则跳过后面的处理。</Name>
+      <Description></Description>
+      <AssemblyQualifiedName>Finance.Stocks.Sina.BeforeDailyTransDetailPrimaryDataRetrieveCheckLocalData,Finance.Stocks.Sina</AssemblyQualifiedName>
+    </FunctionPoint>
+    <!--停用此功能点，使用IDailyTransDetailDataSaveService保存-->
+    <!--<FunctionPoint>
+      <Name>根据抓取到的数据创建待返回的对象后事件。</Name>
+      <Description>序列化结果。</Description>
+      <AssemblyQualifiedName>Finance.Stocks.Sina.AfterDailyTransDetailDataBuildSaveResult,Finance.Stocks.Sina</AssemblyQualifiedName>
+    </FunctionPoint>-->
+    <FunctionPoint>
+      <Name>当获取信息发生异常时。</Name>
+      <Description></Description>
+      <AssemblyQualifiedName>Finance.Stocks.Sina.OnGetResultExcepting,Finance.Stocks.Sina</AssemblyQualifiedName>
+    </FunctionPoint>
+
+    <FunctionPoint>
+      <Name>由Finance.Stocks.Sina获取指定股票的分红配送信息。</Name>
+      <Description></Description>
+      <AssemblyQualifiedName>Finance.Stocks.Sina.DividendDataReadService,Finance.Stocks.Sina</AssemblyQualifiedName>
+    </FunctionPoint>
+  </Items>
+</FunctionPackage>

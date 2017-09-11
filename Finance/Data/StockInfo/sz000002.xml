@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<StockInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <CompanyName>万 科Ａ</CompanyName>
+  <StockCode>000002</StockCode>
+  <Market>sz</Market>
+  <StartDate>1991-01-29T00:00:00</StartDate>
+  <EndDate>2017-09-11T00:00:00</EndDate>
+</StockInfo>

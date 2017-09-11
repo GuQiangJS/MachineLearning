@@ -1,0 +1,9 @@
+﻿<?xml version="1.0"?>
+<Config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <CaptureListPath>C:\Users\IEUser\Documents\TestingEnvironment\Data\Stocks\CaptureList</CaptureListPath>
+  <CaptureListFileName>CaptureList.xml</CaptureListFileName>
+  <!--差量化列表文件创建表达式,创建新的差量文件时用。-->
+  <CaptureListPatchFile DynamicValue="true" Cache="false">string.Format("CaptureList_{0}.xml", DateTime.Today.ToString("yyyyMMdd"));</CaptureListPatchFile>
+  <!--列表差量文件正则匹配表达式，上面设置的差量文件为_日期，所以表达式用_(\d{8})-->
+  <CaptureListPatchFileExpression>CaptureList_(\d{8}).xml</CaptureListPatchFileExpression>
+</Config>

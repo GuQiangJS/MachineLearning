@@ -1,0 +1,7 @@
+﻿<?xml version="1.0"?>
+<Config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <BackupOutPutPath DynamicValue="true">string.Format("E:\\Backup\\{0}\\", DateTime.Today.ToString("yyyyMMdd"));</BackupOutPutPath>
+  <BackupLogFilePath>E:\Backup\HistoricalDataLog.xml</BackupLogFilePath>
+  <!--极限压缩-->
+  <AarchiveArgument>-mx9</AarchiveArgument>
+</Config>

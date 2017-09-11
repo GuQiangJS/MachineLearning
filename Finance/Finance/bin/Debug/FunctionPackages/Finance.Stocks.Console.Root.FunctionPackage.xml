@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<FunctionPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>RootFunctionPackage</Name>
+  <Domain></Domain>
+  <Description>Console用扩展全局功能包</Description>
+  <Items>
+    <FunctionPoint>
+      <Name>OnConsoleMessageAdded</Name>
+      <Description>处理消息容器中的ConsoleMessage消息</Description>
+      <AssemblyQualifiedName>Finance.Stocks.Console.Interceptors.OnConsoleMessageAdded,Finance.Stocks.Console.Extensions</AssemblyQualifiedName>
+    </FunctionPoint>
+    <FunctionPoint>
+      <Name>OnConsoleMessageAddedDisposeMessage</Name>
+      <Description>当Console消息被添加时回收消息对象</Description>
+      <AssemblyQualifiedName>Finance.Stocks.Console.Interceptors.OnConsoleMessageAddedDisposeMessage,Finance.Stocks.Console.Extensions</AssemblyQualifiedName>
+      <Dependency>Finance.Stocks.Console.Interceptors.OnConsoleMessageAdded,Finance.Stocks.Console.Extensions</Dependency>
+    </FunctionPoint>
+    <FunctionPoint>
+      <Name>OnConsoleLogAdded</Name>
+      <Description>处理消息容器中的ConsoleLog消息</Description>
+      <AssemblyQualifiedName>Finance.Stocks.Console.Interceptors.OnConsoleLogAdded,Finance.Stocks.Console.Extensions</AssemblyQualifiedName>
+    </FunctionPoint>
+    <FunctionPoint>
+      <Name>OnConsoleExceptionAdded</Name>
+      <Description>处理消息容器中的异常消息</Description>
+      <AssemblyQualifiedName>Finance.Stocks.Console.Interceptors.OnConsoleExceptionAdded,Finance.Stocks.Console.Extensions</AssemblyQualifiedName>
+    </FunctionPoint>
+    <FunctionPoint>
+      <Name>OnConsoleExceptionAddedSendMail</Name>
+      <Description>处理消息容器中的异常消息-将消息发送邮件</Description>
+      <AssemblyQualifiedName>Finance.Stocks.Console.Interceptors.OnConsoleExceptionAddedSendMail,Finance.Stocks.Console.Extensions</AssemblyQualifiedName>
+      <Dependency>Finance.Stocks.Console.Interceptors.OnConsoleExceptionAdded,Finance.Stocks.Console.Extensions</Dependency>
+    </FunctionPoint>
+  </Items>
+</FunctionPackage>

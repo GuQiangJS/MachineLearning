@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <RecordPath>F:\Finance\Stocks\Records\</RecordPath>
+  <RecordFileName DynamicValue="true">string.Format("Record_{0}.txt", DateTime.Today.ToString("yyyyMMdd"));</RecordFileName>
+  <ErrorFilePath>F:\Finance\Stocks</ErrorFilePath>
+  <ErrorFileName DynamicValue="true">string.Format("Error_{0}.txt", DateTime.Today.ToString("yyyyMMdd"));</ErrorFileName>
+  <ReExecution>True</ReExecution><!--是否重做-->
+  <ReExecutiongTimes>100</ReExecutiongTimes><!--重做次数-->
+</Config>

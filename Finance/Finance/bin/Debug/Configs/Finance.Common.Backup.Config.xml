@@ -1,0 +1,16 @@
+﻿<?xml version="1.0"?>
+<Config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!--使用SevenZipSharp时使用配置开始-->
+  <!--7zip的dll所在路径-->
+  <SevenZipLibraryPath-64>D:\Code\SourceCode\guqiangjs.vs.com\Finance\Finance 1.1\Output\Finance.Console.Debug\Supports\7z-x64.dll</SevenZipLibraryPath-64>
+  <SevenZipLibraryPath-32>D:\Code\SourceCode\guqiangjs.vs.com\Finance\Finance 1.1\Output\Finance.Console.Debug\Supports\7z-x86.dll</SevenZipLibraryPath-32>
+  <!--压缩输出文件类型，如果不设置则默认为OutArchiveFormat.SevenZip-->
+  <OutArchiveFormat>OutArchiveFormat.SevenZip</OutArchiveFormat>
+  <!--使用SevenZipSharp时使用配置结束-->
+
+  <!--使用7Zip命令行时使用配置开始-->
+  <SevenZipExecuteFilePath>C:\Program Files\7-Zip\7z.exe</SevenZipExecuteFilePath>
+  <!--极限压缩-->
+  <AarchiveArgument>-mx9</AarchiveArgument>
+  <!--使用7Zip命令行时使用配置结束-->
+</Config>
