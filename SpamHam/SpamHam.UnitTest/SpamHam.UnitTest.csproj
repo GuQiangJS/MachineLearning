@@ -52,7 +52,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="TestBase.cs" />
-    <Compile Include="TrainTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

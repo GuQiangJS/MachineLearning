@@ -20,22 +20,7 @@ namespace SpamHam
         /// 分词器
         /// </summary>
         private IParticiple _participle;
-
-        /// <summary>
-        /// 对一个字符串进行计算，分解出每个单词，并计算每个单词在字符串中出现次数比率
-        /// </summary>
-        /// <param name="value">待解析的字符串</param>
-        /// <returns>返回计算后的标签集合，对应了每个单词及其出现次数比率</returns>
-        public Token[] Calculate(string value)
-        {
-            string[] words = _participle.DoParticiple(value);
-            Token[] result = new Token[words.Length];
-            for (int i = 0; i < words.Length; i++)
-            {
-                result[i] = new Token(words[i], (float) words.Count(x => x.Equals(words[i])) / (float) words.Length);
-            }
-            return result;
-        }
+        
 
         /// <summary>
         /// 计算单词<paramref name="value"/>在字符串数组<paramref name="lines"/>中的出现次数
@@ -96,15 +81,15 @@ namespace SpamHam
             //信息类型是 type 时，信息包含 value 的比率
             double laplace = (double)(1 + containsValueArrayIsType.Length) / (1 + array.Length);
 
-#if DEBUG
-            Debug.WriteLine("原始分组数量:{0}.", lines.Length);
-            Debug.WriteLine("信息类型是 {1} 分组数量:{0}.", array.Length, Enum.GetName(typeof(DocType), type));
-            Debug.WriteLine("包含 {1} 的分组数量:{0}.", containsValueArray.Length, value);
-            Debug.WriteLine("信息类型是 {1} 时，信息包含 {2} 的分组数量:{0}.", containsValueArrayIsType.Length,
-                Enum.GetName(typeof(DocType), type), value);
-            Debug.WriteLine("原始比率:{0}.", per.ToString("P"));
-            Debug.WriteLine("拉普拉斯变换后的比率:{0}.", laplace.ToString("P"));
-#endif
+//#if DEBUG
+//            Debug.WriteLine("原始分组数量:{0}.", lines.Length);
+//            Debug.WriteLine("信息类型是 {1} 分组数量:{0}.", array.Length, Enum.GetName(typeof(DocType), type));
+//            Debug.WriteLine("包含 {1} 的分组数量:{0}.", containsValueArray.Length, value);
+//            Debug.WriteLine("信息类型是 {1} 时，信息包含 {2} 的分组数量:{0}.", containsValueArrayIsType.Length,
+//                Enum.GetName(typeof(DocType), type), value);
+//            Debug.WriteLine(string.Format("原始比率:{0}.", per.ToString("P")));
+//            Debug.WriteLine(string.Format("拉普拉斯变换后的比率:{0}.", laplace.ToString("P")));
+//#endif
             return laplace;
         }
     }

@@ -13,15 +13,17 @@ namespace SpamHam
     [DebuggerDisplay("Value = {Value} , Score= {Score}")]
     public struct Token
     {
-        public Token(string value, float score)
+        public Token(string value,DocType type, double score)
         {
             Value = value;
             Score = score;
+            Type = type;
         }
+        public DocType Type { get; set; }
         /// <summary>
         /// 获取或设置得分
         /// </summary>
-        public float Score { get; set; }
+        public double Score { get; set; }
         /// <summary>
         /// 获取或设置单词
         /// </summary>
