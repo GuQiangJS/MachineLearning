@@ -1,5 +1,0 @@
-﻿<?xml version="1.0"?>
-<Config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <!--转帐记录文档路径-->
-  <TransferFilePath>C:\Users\IEUser\Documents\TestingEnvironment\Data\Stocks\Transfers\Transfer.{0}.xml</TransferFilePath>
-</Config>
