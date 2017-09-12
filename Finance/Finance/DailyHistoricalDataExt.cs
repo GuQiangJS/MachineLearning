@@ -71,15 +71,20 @@ namespace Finance
 
             buyAmount = GetAmount(buyDatas);
             BuyVolumeSum = buyDatas.Select(x => x.Volume).Sum();
+            BuyVolumeSumLog = Math.Log(BuyVolumeSum);
             BuyPriceAvg = (BuyVolumeSum != 0) ? Math.Round((buyAmount / BuyVolumeSum), 2) : 0;
 
             saleAmount = GetAmount(saleDatas);
             SaleVolumeSum = saleDatas.Select(x => x.Volume).Sum();
+            SaleVolumeSumLog = Math.Log(SaleVolumeSum);
             SalePriceAvg = (SaleVolumeSum != 0) ? Math.Round((saleAmount / SaleVolumeSum), 2) : 0;
 
             neutralAmount = GetAmount(neutralDatas);
             NeutralVolumeSum = neutralDatas.Select(x => x.Volume).Sum();
+            NeutralVolumeSumLog = Math.Log(NeutralVolumeSum);
             NeutralPriceAvg = (NeutralVolumeSum != 0) ? Math.Round((neutralAmount / NeutralVolumeSum), 2) : 0;
+
+            BuySaleVolumnPoorLog = Math.Log(BuyVolumeSum - SaleVolumeSum);
 
             //当前计算日期之后的所有交易汇总
             IEnumerable<DailyHistoricalData> transDatas = hisData.HistoricalDatas.SkipWhile(x => x.Date <= data.Date);
@@ -95,6 +100,26 @@ namespace Finance
             IncreaseResults.Add(new IncreaseResult(1.20f, BuyPriceAvg,
                 GetIncreaseDates(data, BuyPriceAvg, transDatas, 1.20f)));
         }
+
+        /// <summary>
+        /// 获取或设置买盘/买盘交易总量间的差额对数
+        /// </summary>
+        public double BuySaleVolumnPoorLog { get; set; }
+
+        /// <summary>
+        /// 获取或设置买盘交易总量的对数
+        /// </summary>
+        public double SaleVolumeSumLog { get; set; }
+
+        /// <summary>
+        /// 获取或设置买盘交易总量的对数
+        /// </summary>
+        public double NeutralVolumeSumLog { get; set; }
+
+        /// <summary>
+        /// 获取或设置买盘交易总量的对数
+        /// </summary>
+        public double BuyVolumeSumLog { get; set; }
 
         /// <summary>
         /// 获取或设置涨到指定目标价位所需的交易日的计算结果集合
@@ -119,8 +144,17 @@ namespace Finance
 
             foreach (DailyHistoricalData transData in transDatas)
             {
-                if (transData.Low <= target && transData.High >= target)
+                if (target <= transData.Low)
+                {
                     return count;
+                }
+                else
+                {
+                    if (target <= transData.High)
+                    {
+                        return count;
+                    }
+                }
                 count++;
             }
             return -1;

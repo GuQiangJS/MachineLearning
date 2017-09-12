@@ -9,23 +9,23 @@
   <DailyAnalysisDataPath>F:\Finance\Stocks\HistoricalData\</DailyAnalysisDataPath>
   <DailyAnalysisFileName>Analysis.xml</DailyAnalysisFileName>-->
   <!--每日成交明细目录-->
-  <DailyTransDetailPath>D:\GitHub\MachineLearning\Finance\Data\DailyTransDetails\{0}</DailyTransDetailPath>
+  <DailyTransDetailPath>C:\Users\GuQiang\Documents\Source\Repos\MachineLearning\Finance\Data\DailyTransDetails\{0}</DailyTransDetailPath>
   <!--每日成交明细文件名-->
-  <DailyTransDetailDataPath>D:\GitHub\MachineLearning\Finance\Data\DailyTransDetails\{0}\{1}.{2}</DailyTransDetailDataPath>
+  <DailyTransDetailDataPath>C:\Users\GuQiang\Documents\Source\Repos\MachineLearning\Finance\Data\DailyTransDetails\{0}\{1}.{2}</DailyTransDetailDataPath>
   <!--每日成交汇总文件路径-->
-  <HistricalDataFilePath>D:\GitHub\MachineLearning\Finance\Data\HistoricalData\{0}{1}.xml</HistricalDataFilePath>
+  <HistricalDataFilePath>C:\Users\GuQiang\Documents\Source\Repos\MachineLearning\Finance\Data\HistoricalData\{0}{1}.xml</HistricalDataFilePath>
   <!--股票信息文件路径-->
-  <StockInfoDataFilePath>D:\GitHub\MachineLearning\Finance\Data\StockInfo\{0}{1}.xml</StockInfoDataFilePath>
+  <StockInfoDataFilePath>C:\Users\GuQiang\Documents\Source\Repos\MachineLearning\Finance\Data\StockInfo\{0}{1}.xml</StockInfoDataFilePath>
   <!--股票每日汇总摘要文件路径-->
-  <DailySummaryDataFilePath>D:\GitHub\MachineLearning\Finance\Data\DailySummaryData\{0}{1}.xml</DailySummaryDataFilePath>
+  <DailySummaryDataFilePath>C:\Users\GuQiang\Documents\Source\Repos\MachineLearning\Finance\Data\DailySummaryData\{0}{1}.xml</DailySummaryDataFilePath>
   <!--股票每日分析数据文件路径-->
-  <DailyAnalysisDataFilePath>D:\GitHub\MachineLearning\Finance\Data\DailyAnalysisData\{0}{1}.xml</DailyAnalysisDataFilePath>
+  <DailyAnalysisDataFilePath>C:\Users\GuQiang\Documents\Source\Repos\MachineLearning\Finance\Data\DailyAnalysisData\{0}{1}.xml</DailyAnalysisDataFilePath>
   <!--有特定目标的数据分析结果路径，0-特定目标值-->
-  <DailySpecifiedTargetSummaryDataFilePath>D:\GitHub\MachineLearning\Finance\Data\DailySpecifiedTargetSummaryData\{0}\{1}{2}.xml</DailySpecifiedTargetSummaryDataFilePath>
+  <DailySpecifiedTargetSummaryDataFilePath>C:\Users\GuQiang\Documents\Source\Repos\MachineLearning\Finance\Data\DailySpecifiedTargetSummaryData\{0}\{1}{2}.xml</DailySpecifiedTargetSummaryDataFilePath>
   <!--成交记录文档路径-->
-  <HoldingsFilePath>D:\GitHub\MachineLearning\Finance\Data\Holdings\Holdings.{0}.xml</HoldingsFilePath>
+  <HoldingsFilePath>C:\Users\GuQiang\Documents\Source\Repos\MachineLearning\Finance\Data\Holdings\Holdings.{0}.xml</HoldingsFilePath>
   <!--成交记录文档路径ForWeb-->
-  <HoldingsFilePathForWeb>D:\GitHub\MachineLearning\Finance\Data\Holdings\Holdings.{0}.js</HoldingsFilePathForWeb>
+  <HoldingsFilePathForWeb>C:\Users\GuQiang\Documents\Source\Repos\MachineLearning\Finance\Data\Holdings\Holdings.{0}.js</HoldingsFilePathForWeb>
   <!--分红配送文件路径-->
   <DividendDataFilePath>D:\DividendData\{0}{1}.xml</DividendDataFilePath>
 </Config>
