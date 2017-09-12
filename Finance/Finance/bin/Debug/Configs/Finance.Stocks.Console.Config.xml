@@ -1,8 +1,0 @@
-﻿<?xml version="1.0"?>
-<Config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <!--<LogFilePath DynamicValue="true">System.IO.Path.Combine(System.IO.Path.GetTempPath(), string.Format("FINANCE_LOG_{0}.txt", DateTime.Today.ToString("yyyyMMdd")));</LogFilePath>-->
-  <!--<LogFilePath DynamicValue="true" Cache="false">System.IO.Path.Combine(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LOGS"),string.Format("FINANCE_LOG_{0}.txt", DateTime.Today.ToString("yyyyMMdd")));</LogFilePath>
-  <ErrorFilePath DynamicValue="true" Cache="false">System.IO.Path.Combine(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LOGS"),string.Format("FINANCE_Error_{0}.txt", DateTime.Today.ToString("yyyyMMdd")));</ErrorFilePath>-->
-  <LogFilePath DynamicValue="true">string.Format("C:\\Users\\GuQiang\\AppData\\Local\\Temp\\FINANCE_LOG_Test_{0}.xml", DateTime.Today.ToString("yyyyMMdd"));</LogFilePath>
-  <ErrorFilePath DynamicValue="true">string.Format("C:\\Users\\GuQiang\\AppData\\Local\\Temp\\FINANCE_LOG_Test_{0}.xml", DateTime.Today.ToString("yyyyMMdd"));</ErrorFilePath>
-</Config>
