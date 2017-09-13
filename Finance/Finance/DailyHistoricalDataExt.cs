@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Finance.Collection;
 using Finance.DataExtraction;
 using Newtonsoft.Json;
 
@@ -12,20 +13,20 @@ namespace Finance
     /// <summary>
     ///     每日成交汇总信息的扩展（增加了每日成交量的对数值）
     /// </summary>
-    public class DailyHistoricalDataExt : DailyHistoricalData
+    public class DailyHistoricalDataExt : DailyHistoricalData,INamedObject
     {
         /// <summary>
         /// 买盘总交易额
         /// </summary>
-        private float buyAmount;
+        private float _buyAmount;
         /// <summary>
         /// 卖盘总交易额
         /// </summary>
-        private float saleAmount;
+        private float _saleAmount;
         /// <summary>
         /// 中性盘交易总额
         /// </summary>
-        private float neutralAmount;
+        private float _neutralAmount;
 
         public DailyHistoricalDataExt()
         {
@@ -69,27 +70,31 @@ namespace Finance
             IEnumerable<SingleTransData> neutralDatas =
                 detail.SingleTrans.Where(x => x.Nature == SingleTransData.NatureEnum.Neutral);
 
-            buyAmount = GetAmount(buyDatas);
+            _buyAmount = GetAmount(buyDatas);
             BuyVolumeSum = buyDatas.Select(x => x.Volume).Sum();
             BuyVolumeSumLog = Math.Log(BuyVolumeSum);
-            BuyPriceAvg = (BuyVolumeSum != 0) ? Math.Round((buyAmount / BuyVolumeSum), 2) : 0;
+            BuyPriceAvg = (BuyVolumeSum != 0) ? Math.Round((_buyAmount / BuyVolumeSum), 2) : 0;
 
-            saleAmount = GetAmount(saleDatas);
+            _saleAmount = GetAmount(saleDatas);
             SaleVolumeSum = saleDatas.Select(x => x.Volume).Sum();
             SaleVolumeSumLog = Math.Log(SaleVolumeSum);
-            SalePriceAvg = (SaleVolumeSum != 0) ? Math.Round((saleAmount / SaleVolumeSum), 2) : 0;
+            SalePriceAvg = (SaleVolumeSum != 0) ? Math.Round((_saleAmount / SaleVolumeSum), 2) : 0;
 
-            neutralAmount = GetAmount(neutralDatas);
+            _neutralAmount = GetAmount(neutralDatas);
             NeutralVolumeSum = neutralDatas.Select(x => x.Volume).Sum();
             NeutralVolumeSumLog = Math.Log(NeutralVolumeSum);
-            NeutralPriceAvg = (NeutralVolumeSum != 0) ? Math.Round((neutralAmount / NeutralVolumeSum), 2) : 0;
+            NeutralPriceAvg = (NeutralVolumeSum != 0) ? Math.Round((_neutralAmount / NeutralVolumeSum), 2) : 0;
 
-            BuySaleVolumnPoorLog = Math.Log(BuyVolumeSum - SaleVolumeSum);
+            BuySaleVolume = (SaleVolumeSum > BuyVolumeSum) ? -1 : 1;
+            BuySaleVolumePoor = BuySaleVolume * (BuyVolumeSum - SaleVolumeSum);
+            BuySaleVolumePoorLog = Math.Log(BuySaleVolumePoor);
+
+            BuyVolumePer = (double) BuyVolumeSum / (double) (BuyVolumeSum + SaleVolumeSum);
 
             //当前计算日期之后的所有交易汇总
             IEnumerable<DailyHistoricalData> transDatas = hisData.HistoricalDatas.SkipWhile(x => x.Date <= data.Date);
 
-            IncreaseResults = new List<IncreaseResult>();
+            IncreaseResults = new IncreaseResultCollection();
 
             IncreaseResults.Add(new IncreaseResult(1.05f, BuyPriceAvg,
                 GetIncreaseDates(data, BuyPriceAvg, transDatas, 1.05f)));
@@ -102,9 +107,24 @@ namespace Finance
         }
 
         /// <summary>
-        /// 获取或设置买盘/买盘交易总量间的差额对数
+        /// 获取或设置 买盘/(买盘+卖盘) 占比值
         /// </summary>
-        public double BuySaleVolumnPoorLog { get; set; }
+        public double BuyVolumePer { get; set; }
+
+        /// <summary>
+        /// 获取或设置买盘/卖盘交易总量间的差额绝对值
+        /// </summary>
+        public double BuySaleVolumePoor { get; set; }
+
+        /// <summary>
+        /// 获取或设置买盘/买盘交易总量间的差额（卖盘>买盘=-1，否则=1）
+        /// </summary>
+        public int BuySaleVolume { get; set; }
+
+        /// <summary>
+        /// 获取或设置买盘/卖盘交易总量间的差额绝对值的对数
+        /// </summary>
+        public double BuySaleVolumePoorLog { get; set; }
 
         /// <summary>
         /// 获取或设置买盘交易总量的对数
@@ -124,7 +144,7 @@ namespace Finance
         /// <summary>
         /// 获取或设置涨到指定目标价位所需的交易日的计算结果集合
         /// </summary>
-        public List<IncreaseResult> IncreaseResults { get; set; }
+        public IncreaseResultCollection IncreaseResults { get; set; }
 
         /// <summary>
         /// 尝试获取当前交易日后多少个交易日可以达到指定涨幅
@@ -216,37 +236,86 @@ namespace Finance
         public double LogVolume { get; set; }
 
         /// <summary>
-        /// 涨到指定目标价位所需的交易日的计算结果
+        /// 对象的名称
         /// </summary>
-        public struct IncreaseResult
+        public override string Name {
+            get { return DateString; }
+            set { }
+        }
+    }
+
+    public class DailyHistoricalDataExtCol : NamedCollection<DailyHistoricalDataExt>
+    {
+        /// <summary>
+        /// 获取指定列表中指定实例<paramref name="data"/>之前的 <paramref name="count"/> 个数据集合
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public IEnumerable<DailyHistoricalDataExt> GetPrevious(DailyHistoricalDataExt data, int count)
         {
-            public IncreaseResult(float percent,double calcPrice,int count)
+            if(data==null)
+                throw new ArgumentNullException(nameof(data));
+            if (count <= 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
+            //集合中指定实例之前的对象集合
+            Stack<DailyHistoricalDataExt> stack = new Stack<DailyHistoricalDataExt>();
+            foreach (DailyHistoricalDataExt item in this.Items)
             {
-                Percent = percent;
-                CalcPrice = calcPrice;
-                Count = count;
-                TargetPrice= Math.Round((calcPrice * percent), 2);
+                if (!ReferenceEquals(data, item))
+                {
+                    stack.Push(item);
+                }
+                else
+                {
+                    break;
+                }
             }
-            /// <summary>
-            /// 获取或设置目标价格
-            /// </summary>
-            public double TargetPrice { get; set; }
+            if (stack.Count < count)
+            {
+                throw new ArgumentOutOfRangeException("count过大！");
+            }
+            Stack<DailyHistoricalDataExt> result = new Stack<DailyHistoricalDataExt>(count);
+            while (result.Count < count)
+            {
+                result.Push(stack.Pop());
+            }
+            return result.ToArray();
+        }
 
-            /// <summary>
-            /// 获取或设置百分比
-            /// </summary>
-            public float Percent { get; set; }
+        /// <summary>
+        /// 获取指定列表中指定实例<paramref name="data"/>之后的 <paramref name="count"/> 个数据集合
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public IEnumerable<DailyHistoricalDataExt> GetNexts(DailyHistoricalDataExt data, int count)
+        {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+            if (count <= 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
 
-            /// <summary>
-            /// 获取或设置计算价格
-            /// </summary>
-            public double CalcPrice { get; set; }
+            int index = -1;
+            for (int i = 0; i < this.Items.Count; i++)
+            {
+                if (ReferenceEquals(this.Items[i], data))
+                {
+                    index = i;
+                    break;
+                }
+            }
+            if(index==-1)
+                throw new ArgumentOutOfRangeException("data不存在！");
+            return this.Items.Skip(index).Take(count);
+        }
 
-            /// <summary>
-            /// 获取或设置所需交易日的计算结果
-            /// </summary>
-            /// <value>返回 -1 表示尚未达到指定涨幅</value>
-            public int Count { get; set; }
+        public void AddRange(IEnumerable<DailyHistoricalDataExt> col)
+        {
+            foreach (DailyHistoricalDataExt ext in col)
+            {
+                this.Items.Add(ext);
+            }
         }
     }
 }

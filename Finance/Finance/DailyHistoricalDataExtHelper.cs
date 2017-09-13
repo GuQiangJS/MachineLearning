@@ -56,7 +56,7 @@ namespace Finance
             File.WriteAllText(filePath, stringBuilder.ToString());
         }
 
-        public static void SaveJson(List<DailyHistoricalDataExt> datas, string filePath)
+        public static void SaveJson(DailyHistoricalDataExtCol datas, string filePath)
         {
             JsonSerializer serializer = new JsonSerializer();
             serializer.NullValueHandling = NullValueHandling.Ignore;
@@ -76,9 +76,9 @@ namespace Finance
             }
         }
 
-        public static List<DailyHistoricalDataExt> LoadJson(StockInfo stockInfo, string filePath)
+        public static DailyHistoricalDataExtCol LoadJson(StockInfo stockInfo, string filePath)
         {
-            List<DailyHistoricalDataExt> result = new List<DailyHistoricalDataExt>();
+            DailyHistoricalDataExtCol result = new DailyHistoricalDataExtCol();
             JsonSerializer serializer = new JsonSerializer();
             using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
@@ -86,7 +86,7 @@ namespace Finance
                 {
                     using (JsonTextReader jsonReader = new JsonTextReader(reader))
                     {
-                        result = serializer.Deserialize<List<DailyHistoricalDataExt>>(jsonReader);
+                        result = serializer.Deserialize<DailyHistoricalDataExtCol>(jsonReader);
                     }
                 }
             }
