@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Security;
+using System.Runtime.Remoting.Contexts;
 using System.Text;
 using System.Threading.Tasks;
 using Cyrix;
 using Finance.DataExtraction;
+using log4net.Repository.Hierarchy;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -18,6 +21,20 @@ namespace Finance
         {
             StockInfo = GetStockInfo();
             HistoricalDataExts = ReadExtendHistoricalData(StockInfo);
+        }
+
+        protected void WriteLine(string value)
+        {
+            TestContext.WriteLine(value);
+            Console.WriteLine(value);
+            File.AppendAllLines(
+                Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "log.txt"),
+                new string[] {value}, Encoding.UTF8);
+        }
+
+        protected void WriteLine(string format, params object[] args)
+        {
+            WriteLine(string.Format(format, args));
         }
 
         protected const string Market = "SZ";
@@ -146,8 +163,16 @@ namespace Finance
                 extHisiHistoricalData.Add(dataExt);
             }
             //DailyHistoricalDataExtHelper.SaveTxt(extHisiHistoricalData, extHistoricalDataTxtFilePath);
-            DailyHistoricalDataExtHelper.SaveJson(extHisiHistoricalData, ExtHistoricalDataJsonFilePath);
+            DailyHistoricalDataExtColHelper.SaveJson(extHisiHistoricalData, ExtHistoricalDataJsonFilePath);
             return extHisiHistoricalData;
+        }
+
+        protected void RemoveExtHistoricalDataJsonFile()
+        {
+            if (File.Exists(ExtHistoricalDataJsonFilePath))
+            {
+                File.Delete(ExtHistoricalDataJsonFilePath);
+            }
         }
 
         protected DailyHistoricalDataExtCol ReadExtendHistoricalData(StockInfo stockInfo)
@@ -156,7 +181,7 @@ namespace Finance
             {
                 return CreateExtendHistoricalData();
             }
-            return DailyHistoricalDataExtHelper.LoadJson(stockInfo, ExtHistoricalDataJsonFilePath);
+            return DailyHistoricalDataExtColHelper.LoadJson(stockInfo, ExtHistoricalDataJsonFilePath);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -25,32 +26,279 @@ namespace Finance
 
         public Test() : base()
         {
-            MakeData();
+            //MakeData();
         }
 
         /// <summary>
         /// 制作 训练/测试 数据集
         /// </summary>
-        void MakeData()
+        /// <param name="v1">分子</param>
+        /// <param name="v2">分母</param>
+        void MakeData(int v1,int v2)
         {
-            _trainDatas=new DailyHistoricalDataExtCol();
-            _validateDatas=new DailyHistoricalDataExtCol();
+            _trainDatas = new DailyHistoricalDataExtCol();
+            _validateDatas = new DailyHistoricalDataExtCol();
+
+            WriteLine("**取 {0}/{1} 的数据作为训练数据.**", v1, v2);
+
             //取 1/3 的数据作为训练数据
-            _trainDatas.AddRange(HistoricalDataExts.Take(HistoricalDataExts.Count / 3));
+            _trainDatas.AddRange(HistoricalDataExts.Take(HistoricalDataExts.Count * v1 / v2));
             //剩余 2/3 的数据作为验证数据
             _validateDatas.AddRange(HistoricalDataExts.Except(_trainDatas));
+            WriteLine("**训练数据条数:{0}.**", _trainDatas.Count);
+            WriteLine("**验证数据条数:{0}.**", _validateDatas.Count);
         }
 
+        /*
+        Score(SMS是垃圾短信 | SMS包含 free、car 和 txt) = log(P(SMS 是垃圾短信))
+        + log(Laplace(SMS包含“free”| SMS是垃圾短信))
+        + log(Laplace(SMS包含“car”| SMS是垃圾短信))
+        + log(Laplace(SMS包含“txt”| SMS是垃圾短信))
+        */
+
+        private StringBuilder textContext = new StringBuilder();
+
+        [Test]
+        public void TestAllPercent()
+        {
+            WriteLine("开始时间:{0}.",DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            textContext = new StringBuilder("训练比率|训练条数|验证条数|计算比率|天数集合|有效验证|正确数量|准确率|无效验证|正确数量|准确率");
+            textContext.AppendLine();
+            for (int k = 1; k <= 9; k++)
+            {
+                MakeData(k, 10);
+                float[] percents = new float[] {1.05f};
+
+                for (int i = 1; i < 30; i++)
+                {
+                    int[] days = new int[i];
+                    for (int j = 0; j < i; j++)
+                    {
+                        days[j] = j + 1;
+                    }
+                    foreach (var VARIABLE in percents)
+                    {
+                        textContext.Append(k + "/" + "10");
+                        textContext.Append(string.Format("|{0}", _trainDatas.Count));
+                        textContext.Append(string.Format("|{0}", _validateDatas.Count));
+                        textContext.Append(string.Format("|{0}", VARIABLE));
+                        textContext.Append(string.Format("|{0}", days.TransToString()));
+                        TestPercent(VARIABLE, days);
+                        textContext.AppendLine();
+                    }
+                }
+            }
+            WriteLine(textContext.ToString());
+        }
+
+        private void TestPercent(float percent,int[] days)
+        {
+            //int[] days = new int[] { 1, 5, 10, 15, 20, 25, 30 };
+
+            LoadTrainScore(percent, days);
+            WriteLine("当前验证比率：{0}。", percent.ToString());
+            WriteLine("当前天数集合：{0}。", days.TransToString());
+            DailyHistoricalDataExtCol valDatas = _validateDatas;
+
+            Dictionary<DailyHistoricalDataExt, KeyValuePair<double, double>> finalScore =
+                new Dictionary<DailyHistoricalDataExt, KeyValuePair<double, double>>();
+            //验证集中减去最后100条，与IsEffective方法有关
+            for (int i = 0; i < valDatas.Count - 100; i++)
+            {
+                double effScore = 0d;
+                double valScore = 0d;
+
+                foreach (int day in days)
+                {
+                    //计算日数据
+                    DailyHistoricalDataExt dailyData = valDatas[i];
+                    //计算日前 X 日数据
+                    DailyHistoricalDataExt[] previous = _trainDatas.GetPrevious(dailyData, day).ToArray();
+
+                    double d = dailyData.BuyVolumePer / previous.Average(x => x.BuyVolumePer);
+
+                    effScore = effScore + _effScores.GetScore(d, day, percent);
+                    valScore = valScore + _valScores.GetScore(d, day, percent);
+                }
+
+                finalScore.Add(valDatas[i], new KeyValuePair<double, double>(effScore, valScore));
+            }
+
+            WriteLine("------------------------------------");
+            WriteLine("总验证数据条数：{0}.", valDatas.Count());
+            WriteLine("有效数据条数:{0}.", valDatas.Count(x => x.IsEffective(percent)));
+            WriteLine("无效数据条数:{0}.", valDatas.Count(x => !x.IsEffective(percent)));
+            WriteLine("------------------------------------");
+
+            //TODO:缺少计算标准得分之间的差额，造成这里直接取了有效分>无效分
+
+            IEnumerable<DailyHistoricalDataExt> finalEff = finalScore.Where(x => (x.Value.Key - x.Value.Value) > 0)
+                .Select(x => x.Key);
+            IEnumerable<DailyHistoricalDataExt> finalVal = finalScore.Select(x => x.Key).Except(finalEff);
+
+            WriteLine("验证结果:");
+            WriteLine("有效数据条数：{0}，正确数量：{1}.", finalEff.Count(), finalEff.Count(x => x.IsEffective(percent)));
+            WriteLine("无效数据条数：{0}，正确数量：{1}.", finalVal.Count(), finalVal.Count(x => !x.IsEffective(percent)));
+
+            double effPer = (double) finalEff.Count(x => x.IsEffective(percent)) / finalEff.Count();
+            double valPer = (double)finalVal.Count(x => !x.IsEffective(percent)) / finalVal.Count();
+
+            WriteLine(string.Format("有效数据验证准确率:{0}", effPer.ToString("P")));
+            WriteLine(string.Format("无效数据验证准确率:{0}", valPer.ToString("P")));
+
+            WriteLine("***********************************");
+
+            //"|有效验证|正确数量|准确率|无效验证|正确数量|准确率
+            textContext.Append(string.Format("|{0}|{1}|{2}", finalEff.Count(), finalEff.Count(x => x.IsEffective(percent)), effPer.ToString("P")));
+            textContext.Append(string.Format("|{0}|{1}|{2}", finalVal.Count(), finalVal.Count(x => !x.IsEffective(percent)), valPer.ToString("P")));
+        }
 
         [Test]
         public void TestVolume()
         {
-            for (int i = 31; i < _trainDatas.Count; i++)
+            MakeData(9, 10);
+            TestPercent(1.05f, new int[] {1});
+            MakeData(8, 10);
+            TestPercent(1.05f, new int[] { 1 });
+        }
+
+        private void LoadTrainScore(float percent, int[] daysArray)
+        {
+            if (!File.Exists(GetScoreFilePath(_effScoresFilePath, percent)) || !File.Exists(GetScoreFilePath(_valScoresFilePath, percent)))
             {
-                DailyHistoricalDataExt dailyData = _trainDatas[i];
-                IEnumerable<DailyHistoricalDataExt> previous1 = _trainDatas.GetPrevious(dailyData, 1);
-                IEnumerable<DailyHistoricalDataExt> previous5 = _trainDatas.GetPrevious(dailyData, 5);
+                CreateTrainScoreFile(percent, daysArray);
             }
+            _effScores = LoadJson<PercentDoubleScoreCol>(GetScoreFilePath(_effScoresFilePath, percent));
+            _valScores = LoadJson<PercentDoubleScoreCol>(GetScoreFilePath(_valScoresFilePath, percent));
+        }
+
+        /// <summary>
+        /// 创建训练结果文档
+        /// </summary>
+        /// <param name="percent">计算比率</param>
+        /// <param name="days"></param>
+        private void CreateTrainScoreFile(float percent,int[] daysArray)
+        {
+            DailyHistoricalDataExtCol datas = _trainDatas;
+
+            WriteLine("训练数据条数：{0}.", datas.Count);
+            //训练数据中的有效数据集合
+            DailyHistoricalDataExtCol effArray = new DailyHistoricalDataExtCol();
+            effArray.AddRange(datas.Where(x => x.IsEffective(percent)).ToArray());
+            WriteLine("训练数据中的有效数据条数：{0}，占比:{1}.", effArray.Count,
+                ((double)effArray.Count / datas.Count).ToString("P"));
+            //训练数据中的无效数据集合
+            DailyHistoricalDataExtCol valArray = new DailyHistoricalDataExtCol();
+            valArray.AddRange(datas.Where(x => !x.IsEffective(percent)).ToArray());
+            WriteLine("训练数据中的无效数据条数：{0}，占比:{1}.", valArray.Count,
+                ((double)valArray.Count / datas.Count).ToString("P"));
+
+            //计算日数据(买盘成交量/(买盘+卖盘)成交量)与指定日期+指定比率的数据(买盘成交量/(买盘+卖盘)成交量)的比率 在有效数据集合中的得分字典
+            PercentDoubleScoreCol _effScores = new PercentDoubleScoreCol();
+            //计算日数据(买盘成交量/(买盘+卖盘)成交量)与指定日期+指定比率的数据(买盘成交量/(买盘+卖盘)成交量)的比率 在无效数据集合中的得分字典
+            PercentDoubleScoreCol _valScores = new PercentDoubleScoreCol();
+
+            //WriteLine("计算天数集合：{0}.", "1,5,10,15,20,25,30");
+            List<PercentScore<double>> p = new List<PercentScore<double>>();
+            //遍历所有天数，所有训练数据，找到每一个对比的数据
+            foreach (int days in daysArray)
+            {
+                for (int i = 31; i < datas.Count; i++)
+                {
+                    //计算日数据
+                    DailyHistoricalDataExt dailyData = datas[i];
+                    //计算日前 X 日数据
+                    DailyHistoricalDataExt[] previous = datas.GetPrevious(dailyData, days).ToArray();
+
+                    double d = dailyData.BuyVolumePer / previous.Average(x => x.BuyVolumePer);
+
+                    p.Add(new PercentScore<double>(d, days, percent, 0));
+                }
+            }
+            WriteLine("训练对比数据集合数量：{0}.", p.Count);
+
+            ICalculation cal = new Calculation();
+            //遍历所有对比数据，分别在有效数据和无效数据中计算得分
+            foreach (PercentScore<double> score in p)
+            {
+                _effScores.Add(new PercentScore<double>(score.KeyValue, score.Days, score.Percent,
+                    Math.Log(cal.Calculate1(effArray, score))));
+                _valScores.Add(new PercentScore<double>(score.KeyValue, score.Days, score.Percent,
+                    Math.Log(cal.Calculate1(valArray, score))));
+            }
+
+            SaveJson(_effScores, GetScoreFilePath(_effScoresFilePath, percent));
+            SaveJson(_valScores, GetScoreFilePath(_valScoresFilePath, percent));
+        }
+
+        string GetScoreFilePath(string filePath, float percent)
+        {
+            return string.Format(filePath, percent.ToString());
+        }
+
+        private PercentDoubleScoreCol _effScores;
+        private PercentDoubleScoreCol _valScores;
+
+        private string _effScoresFilePath =
+            Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments),
+                "EffScores.{0}.json");
+
+        private string _valScoresFilePath =
+            Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments),
+                "ValScores.{0}.json");
+
+        public class PercentDoubleScoreCol : List<PercentScore<double>>
+        {
+            /// <summary>
+            /// 从当前集合中获取指定 <paramref name="keyValue"/>主键值，<paramref name="days"/>天数，<paramref name="percent"/>目标比率 的得分数据
+            /// </summary>
+            /// <param name="keyValue"></param>
+            /// <param name="days"></param>
+            /// <param name="percent"></param>
+            /// <returns></returns>
+            public double GetScore(double keyValue, int days, float percent)
+            {
+                IEnumerable<PercentScore<double>> r =
+                    this.Where(x => Math.Round(keyValue, 4) == Math.Round(x.KeyValue, 4) && x.Percent == percent && x.Days == days);
+                if (r.Any())
+                    return r.Average(x => x.Score);
+                else
+                    return 0d;
+            }
+        }
+
+        /// <summary>
+        /// 指定比率的计算得分
+        /// </summary>
+        public class PercentScore<T>
+        {
+            public PercentScore(T keyValue, int days, float percent, double score)
+            {
+                Days = days;
+                Percent = percent;
+                Score = score;
+                KeyValue = keyValue;
+            }
+
+            /// <summary>
+            /// 获取或设置交易日数量
+            /// </summary>
+            public int Days { get; set; }
+
+            /// <summary>
+            /// 获取或设置当前计算得分的目标比率
+            /// </summary>
+            public float Percent { get; set; }
+
+            /// <summary>
+            /// 获取或设置得分
+            /// </summary>
+            public double Score { get; set; }
+
+            /// <summary>
+            /// 获取或设置主键
+            /// </summary>
+            public T KeyValue { get; set; }
         }
     }
 
@@ -111,15 +359,15 @@ namespace Finance
     //        + log(Laplace(SMS包含“txt”| SMS是垃圾短信))
     //        */
 
-    //        TestContext.WriteLine(string.Format("总训练数据条数:{0}.",_trainDatas.Count()));
+    //        WriteLine(string.Format("总训练数据条数:{0}.",_trainDatas.Count()));
 
-    //        TestContext.WriteLine(string.Format("训练数据中达到1.05%比率天数的平均值:{0}.",
+    //        WriteLine(string.Format("训练数据中达到1.05%比率天数的平均值:{0}.",
     //            Math.Round(GetAvgData(_trainDatas, 1.05f), 2)));
-    //        TestContext.WriteLine(string.Format("训练数据中达到1.10%比率天数的平均值:{0}.",
+    //        WriteLine(string.Format("训练数据中达到1.10%比率天数的平均值:{0}.",
     //            Math.Round(GetAvgData(_trainDatas, 1.1f), 2)));
-    //        TestContext.WriteLine(string.Format("训练数据中达到1.15%比率天数的平均值:{0}.",
+    //        WriteLine(string.Format("训练数据中达到1.15%比率天数的平均值:{0}.",
     //            Math.Round(GetAvgData(_trainDatas, 1.15f), 2)));
-    //        TestContext.WriteLine(string.Format("训练数据中达到1.20%比率天数的平均值:{0}.",
+    //        WriteLine(string.Format("训练数据中达到1.20%比率天数的平均值:{0}.",
     //            Math.Round(GetAvgData(_trainDatas, 1.2f), 2)));
 
     //        //训练数据中 1.05% 的有效涨幅集合
@@ -139,22 +387,22 @@ namespace Finance
     //        //训练数据中 1.2% 的无效涨幅集合
     //        IEnumerable<DailyHistoricalDataExt> datas4 = GetVData2(_trainDatas, 1.2f);
 
-    //        TestContext.WriteLine(string.Format("训练数据中 1.05% 的有效涨幅集合数量:{0}.", vDatas1.Count()));
-    //        TestContext.WriteLine(string.Format("训练数据中 1.05% 的无效涨幅集合数量:{0}.", datas1.Count()));
-    //        TestContext.WriteLine(string.Format("训练数据中 1.10% 的有效涨幅集合数量:{0}.", vDatas2.Count()));
-    //        TestContext.WriteLine(string.Format("训练数据中 1.10% 的无效涨幅集合数量:{0}.", datas2.Count()));
-    //        TestContext.WriteLine(string.Format("训练数据中 1.15% 的有效涨幅集合数量:{0}.", vDatas3.Count()));
-    //        TestContext.WriteLine(string.Format("训练数据中 1.15% 的无效涨幅集合数量:{0}.", datas3.Count()));
-    //        TestContext.WriteLine(string.Format("训练数据中 1.20% 的有效涨幅集合数量:{0}.", vDatas4.Count()));
-    //        TestContext.WriteLine(string.Format("训练数据中 1.20% 的无效涨幅集合数量:{0}.", datas4.Count()));
+    //        WriteLine(string.Format("训练数据中 1.05% 的有效涨幅集合数量:{0}.", vDatas1.Count()));
+    //        WriteLine(string.Format("训练数据中 1.05% 的无效涨幅集合数量:{0}.", datas1.Count()));
+    //        WriteLine(string.Format("训练数据中 1.10% 的有效涨幅集合数量:{0}.", vDatas2.Count()));
+    //        WriteLine(string.Format("训练数据中 1.10% 的无效涨幅集合数量:{0}.", datas2.Count()));
+    //        WriteLine(string.Format("训练数据中 1.15% 的有效涨幅集合数量:{0}.", vDatas3.Count()));
+    //        WriteLine(string.Format("训练数据中 1.15% 的无效涨幅集合数量:{0}.", datas3.Count()));
+    //        WriteLine(string.Format("训练数据中 1.20% 的有效涨幅集合数量:{0}.", vDatas4.Count()));
+    //        WriteLine(string.Format("训练数据中 1.20% 的无效涨幅集合数量:{0}.", datas4.Count()));
 
-    //        TestContext.WriteLine(string.Format("训练数据中 1.05% 的有效涨幅的占比:{0}.",
+    //        WriteLine(string.Format("训练数据中 1.05% 的有效涨幅的占比:{0}.",
     //            Math.Round((double)vDatas1.Count()/_trainDatas.Count(), 2).ToString("P")));
-    //        TestContext.WriteLine(string.Format("训练数据中 1.10% 的有效涨幅的占比:{0}.",
+    //        WriteLine(string.Format("训练数据中 1.10% 的有效涨幅的占比:{0}.",
     //            Math.Round((double)vDatas2.Count() / _trainDatas.Count(), 2).ToString("P")));
-    //        TestContext.WriteLine(string.Format("训练数据中 1.15% 的有效涨幅的占比:{0}.",
+    //        WriteLine(string.Format("训练数据中 1.15% 的有效涨幅的占比:{0}.",
     //            Math.Round((double)vDatas3.Count() / _trainDatas.Count(), 2).ToString("P")));
-    //        TestContext.WriteLine(string.Format("训练数据中 1.20% 的有效涨幅的占比:{0}.",
+    //        WriteLine(string.Format("训练数据中 1.20% 的有效涨幅的占比:{0}.",
     //            Math.Round((double)vDatas4.Count() / _trainDatas.Count(), 2).ToString("P")));
 
     //    }
@@ -188,11 +436,11 @@ namespace Finance
     //    {
     //        //测试数据
     //        DailyHistoricalDataExt[] valDataExts = _validateDatas.ToArray();
-    //        TestContext.WriteLine(string.Format("总测试数据量:{0}.", valDataExts.Length));
+    //        WriteLine(string.Format("总测试数据量:{0}.", valDataExts.Length));
 
     //        //数据中的有效数据量
     //        IEnumerable<DailyHistoricalDataExt> tt = GetVData1(_validateDatas, 1.05f);
-    //        TestContext.WriteLine(string.Format("总测试数据中的有效量:{0}.", tt.Count()));
+    //        WriteLine(string.Format("总测试数据中的有效量:{0}.", tt.Count()));
 
     //        int effCount = 0;
     //        StringBuilder t = new StringBuilder();
@@ -226,8 +474,8 @@ namespace Finance
     //                            .FirstOrDefault()));
     //            }
     //        }
-    //        TestContext.WriteLine(string.Format("有效数据量:{0}.", effCount));
-    //        TestContext.WriteLine(t.ToString());
+    //        WriteLine(string.Format("有效数据量:{0}.", effCount));
+    //        WriteLine(t.ToString());
     //    }
 
     //    private void LoadTrainScore()
@@ -245,7 +493,7 @@ namespace Finance
     //        //训练数据
     //        DailyHistoricalDataExt[] trainDataArray = _trainDatas.ToArray();
 
-    //        TestContext.WriteLine("总训练数据条数：{0}.", trainDataArray.Length);
+    //        WriteLine("总训练数据条数：{0}.", trainDataArray.Length);
     //        //计算器
     //        ICalculation calculation = new Calculation();
 

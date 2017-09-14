@@ -31,31 +31,8 @@ namespace Finance
     /// <summary>
     /// 每日成交汇总信息帮助类
     /// </summary>
-    public class DailyHistoricalDataExtHelper
+    public class DailyHistoricalDataExtColHelper
     {
-        public static void SaveTxt(List<DailyHistoricalDataExt> datas, string filePath)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (DailyHistoricalDataExt dataExt in datas)
-            {
-                stringBuilder.AppendLine(string.Format(@"{0}\{1}\{2}\{3}\{4}\{5}\{6}\{7}\{8}\{9}\{10}\{11}\{12}",
-                    dataExt.Date.Ticks,
-                    dataExt.Open,
-                    dataExt.High,
-                    dataExt.Low,
-                    dataExt.Close,
-                    dataExt.Volume,
-                    dataExt.LogVolume,
-                    dataExt.BuyPriceAvg,
-                    dataExt.BuyVolumeSum,
-                    dataExt.NeutralPriceAvg,
-                    dataExt.NeutralVolumeSum,
-                    dataExt.SalePriceAvg,
-                    dataExt.SaleVolumeSum));
-            }
-            File.WriteAllText(filePath, stringBuilder.ToString());
-        }
-
         public static void SaveJson(DailyHistoricalDataExtCol datas, string filePath)
         {
             JsonSerializer serializer = new JsonSerializer();

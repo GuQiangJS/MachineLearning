@@ -318,4 +318,19 @@ namespace Finance
             }
         }
     }
+
+    public static class DailyHistoricalDataExtHelper
+    {
+        /// <summary>
+        /// 指定的<see cref="DailyHistoricalDataExt"/>的指定比率是否是有效数据
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="percent"></param>
+        /// <returns>当指定比率的 100 > 达标天数 > 0 时返回<c>true</c>，否则返回<c>false</c>。</returns>
+        public static bool IsEffective(this DailyHistoricalDataExt data, float percent)
+        {
+            IncreaseResult r = data.IncreaseResults[percent];
+            return r.Count > 0 && r.Count < 100;
+        }
+    }
 }

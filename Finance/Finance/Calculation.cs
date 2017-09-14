@@ -18,7 +18,7 @@ namespace Finance
         /// <param name="poor"></param>
         /// <param name="tpercentype"></param>
         /// <returns></returns>
-        double Calculate1(DailyHistoricalDataExt[] datas, double poor, float percent);
+        double Calculate1(DailyHistoricalDataExtCol datas, Test.PercentScore<double> score);
     }
 
     public class Calculation:ICalculation
@@ -30,15 +30,28 @@ namespace Finance
         /// <param name="poor"></param>
         /// <param name="percent"></param>
         /// <returns></returns>
-        public double Calculate1(DailyHistoricalDataExt[] datas, double poor, float percent)
+        public double Calculate1(DailyHistoricalDataExtCol datas, Test.PercentScore<double> score)
         {
             //符合条件的分组数量
             //DailyHistoricalDataExt[] array = datas
             //    .Where(x => x.IncreaseResults.FirstOrDefault(y => y.Percent == percent).Count > 0).ToArray();
 
             //包含 买盘/(买盘+买盘)的占比 的信息集合
-            DailyHistoricalDataExt[] containsPoorArray = datas
-                .Where(x => Math.Round(x.BuyVolumePer, 2) == poor).ToArray();
+            List<DailyHistoricalDataExt> containsPoorArray = new List<DailyHistoricalDataExt>();
+            for (int i = 31; i < datas.Count; i++)
+            {
+                //计算日数据
+                DailyHistoricalDataExt dailyData = datas[i];
+                //计算日前 X 日数据
+                DailyHistoricalDataExt[] previous = datas.GetPrevious(dailyData, score.Days).ToArray();
+
+                double d = dailyData.BuyVolumePer / previous.Average(x => x.BuyVolumePer);
+
+                if (Math.Round(d, 2) == Math.Round(score.KeyValue, 2))
+                {
+                    containsPoorArray.Add(dailyData);
+                }
+            }
 
             //包含 买盘/(买盘+买盘)的占比 的信息集合中符合 百分比 的信息集合
             //DailyHistoricalDataExt[] containsPoorArrayIsSuccessProcent =
@@ -46,9 +59,9 @@ namespace Finance
             //        .ToArray();
 
             //信息类型是 type 时，信息包含 value 的比率
-            double per = (double)(containsPoorArray.Length) / (datas.Length);
+            double per = (double)(containsPoorArray.Count) / (datas.Count);
             //信息类型是 type 时，信息包含 value 的比率
-            double laplace = (double)(1 + containsPoorArray.Length) / (1 + datas.Length);
+            double laplace = (double)(1 + containsPoorArray.Count) / (1 + datas.Count);
 
             //#if DEBUG
             //            Debug.WriteLine("原始分组数量:{0}.", lines.Length);
